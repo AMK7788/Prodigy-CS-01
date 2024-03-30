@@ -1,61 +1,40 @@
-from PIL import Image
-import numpy as np
+import re
 
-def encrypt_image(image_path, key):
-    # Open the image
-    img = Image.open(image_path)
-    
-    # Convert the image to a NumPy array
-    img_array = np.array(img)
+def check_password_complexity(password):
+    # Define criteria for password strength
+    length_criteria = len(password) >= 8
+    uppercase_criteria = bool(re.search(r'[A-Z]', password))
+    lowercase_criteria = bool(re.search(r'[a-z]', password))
+    digit_criteria = bool(re.search(r'\d', password))
+    special_char_criteria = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
 
-    # Ensure key has the same shape as img_array
-    key = np.resize(key, img_array.shape)
+    # Assess the strength of the password based on criteria
+    if length_criteria and uppercase_criteria and lowercase_criteria and digit_criteria and special_char_criteria:
+        return "Strong password! 👍"
+    else:
+        feedback = "Weak password. Consider the following improvements:\n"
+        if not length_criteria:
+            feedback += "- Ensure the password is at least 8 characters long\n"
+        if not uppercase_criteria:
+            feedback += "- Include at least one uppercase letter\n"
+        if not lowercase_criteria:
+            feedback += "- Include at least one lowercase letter\n"
+        if not digit_criteria:
+            feedback += "- Include at least one digit\n"
+        if not special_char_criteria:
+            feedback += "- Include at least one special character (!@#$%^&*(),.?\":{}|<>)\n"
 
-    # Encrypt each pixel using XOR with the key
-    encrypted_array = np.bitwise_xor(img_array, key)
-    
-    # Convert the encrypted array back to an image
-    encrypted_img = Image.fromarray(encrypted_array)
-    
-    # Save the encrypted image
-    encrypted_img.save("encrypted_image.png")
-    print("Image encrypted successfully.")
-
-
-def decrypt_image(encrypted_image_path, key):
-    # Open the encrypted image
-    encrypted_img = Image.open(encrypted_image_path)
-    
-    # Convert the encrypted image to a NumPy array
-    encrypted_array = np.array(encrypted_img)
-
-    # Ensure key has the same shape as encrypted_array
-    key = np.resize(key, encrypted_array.shape)
-
-    # Decrypt each pixel using XOR with the key
-    decrypted_array = np.bitwise_xor(encrypted_array, key)
-    
-    # Convert the decrypted array back to an image
-    decrypted_img = Image.fromarray(decrypted_array)
-    
-    # Save the decrypted image
-    decrypted_img.save("decrypted_image.png")
-    print("Image decrypted successfully.")
-
+        return feedback
 
 def main():
-    print("Image Encryption and Decryption using Pixel Manipulation")
+    print("Password Complexity Checker")
 
-    #image_path = 'C:\Users\HP\PRODIGY_INFOTECH\image1.png'. enter your image path as input
-    image_path = input("Enter the path to the image file: ")
-    # Generate a random key (you can use any integer as the key)
-    key = np.random.randint(0, 256, size=(3,), dtype=np.uint8)
-    
-    # Encrypt the image
-    encrypt_image(image_path, key)
-    
-    # Decrypt the image
-    decrypt_image("encrypted_image.png", key)
+    # Get user input for the password
+    password = input("Enter your password: ")
+
+    # Check and provide feedback on the password complexity
+    result = check_password_complexity(password)
+    print(result)
 
 if __name__ == "__main__":
     main()
